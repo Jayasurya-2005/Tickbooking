@@ -1,0 +1,132 @@
+.confirmation-page {
+    min-height: 100vh;
+    background: #f3f4f6;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.confirmation-page h1 {
+    margin-bottom: 25px;
+}
+
+.ticket {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.ticket-header {
+    background: #111827;
+    color: white;
+    padding: 25px;
+}
+
+.ticket-header h2 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.ticket-header p {
+    margin: 8px 0 0;
+    color: #d1d5db;
+}
+
+.ticket-body {
+    padding: 25px;
+    text-align: left;
+}
+
+.movie-title {
+    text-align: center;
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+.show-info {
+    display: grid;
+    gap: 12px;
+}
+
+.show-info p {
+    margin: 0;
+}
+
+.seat-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px dashed #9ca3af;
+}
+
+.seats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.seat {
+    background: #e5e7eb;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.price-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px dashed #9ca3af;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.status {
+    text-align: center;
+    color: green;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.back-button {
+    margin-top: 25px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background: #111827;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.back-button:hover {
+    opacity: 0.85;
+}
+.qr-section {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px dashed #9ca3af;
+}
+
+.qr-section svg {
+    margin: 10px auto;
+}
+
+.qr-section p {
+    color: #6b7280;
+    font-size: 14px;
+}
