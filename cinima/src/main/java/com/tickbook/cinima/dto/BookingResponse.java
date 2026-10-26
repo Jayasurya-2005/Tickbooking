@@ -1,5 +1,8 @@
 package com.tickbook.cinima.dto;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public class BookingResponse {
 
     private Long bookingId;
@@ -17,6 +20,8 @@ public class BookingResponse {
     private double totalAmount;
 
     private String bookingStatus;
+    private LocalDateTime bookingTime;
+    private List<String> seatNumbers;
 
     public BookingResponse() {
     }
@@ -94,5 +99,60 @@ public class BookingResponse {
 
     public void setBookingStatus(String bookingStatus) {
         this.bookingStatus = bookingStatus;
+    }
+
+    public LocalDateTime getBookingTime() {
+        return bookingTime;
+    }
+
+    public void setBookingTime(LocalDateTime bookingTime) {
+        this.bookingTime = bookingTime;
+    }
+
+    public List<String> getSeatNumbers() {
+        return seatNumbers;
+    }
+
+    public void setSeatNumbers(List<String> seatNumbers) {
+        this.seatNumbers = seatNumbers;
+    }
+    public String getMovieTitle() {
+        return movieTitle;
+    }
+
+    public void setMovieTitle(String movieTitle) {
+        this.movieTitle = movieTitle;
+    }
+
+    public String getTheatreName() {
+        return theatreName;
+    }
+
+    public void setTheatreName(String theatreName) {
+        this.theatreName = theatreName;
+    }
+
+    public String getTheatreLocation() {
+        return theatreLocation;
+    }
+
+    public void setTheatreLocation(String theatreLocation) {
+        this.theatreLocation = theatreLocation;
+    }
+
+    public String getShowDate() {
+        return showDate;
+    }
+
+    public void setShowDate(String showDate) {
+        this.showDate = showDate;
+    }
+
+    public String getShowTime() {
+        return showTime;
+    }
+
+    public void setShowTime(String showTime) {
+        this.showTime = showTime;
     }
 }

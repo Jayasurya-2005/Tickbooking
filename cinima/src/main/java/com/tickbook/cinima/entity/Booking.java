@@ -14,6 +14,8 @@ public class Booking {
     @JoinColumn(name = "show_id")
     private Show show;
 
+    private Long userId;
+
     private double subtotal;
 
     private double gst;
@@ -54,6 +56,14 @@ public class Booking {
 
 	public void setShow(Show show) {
 		this.show = show;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public double getSubtotal() {

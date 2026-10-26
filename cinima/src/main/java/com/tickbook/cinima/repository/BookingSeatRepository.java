@@ -1,6 +1,7 @@
 package com.tickbook.cinima.repository;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,6 @@ public interface BookingSeatRepository extends JpaRepository<BookingSeat, Long> 
         AND bs.show.id = :showId
     """)
     Optional<BookingSeat> findBookedSeat(Long seatId, Long showId);
+
+    List<BookingSeat> findAllByBooking_Id(Long bookingId);
 }

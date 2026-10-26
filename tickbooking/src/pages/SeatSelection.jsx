@@ -1,225 +1,133 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import api from "../services/api";
-import "./SeatSelection.css";
 
-function SeatSelection() {
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { movieApi } from '../services/api';
 
-    const { showId } = useParams();
-    const navigate = useNavigate();
 
-    const [seats, setSeats] = useState([]);
-    const [selectedSeats, setSelectedSeats] = useState([]);
+export default function SeatSelection() {
+  const { showId } = useParams();
+  const navigate = useNavigate();
 
-    const selectedSeatDetails = seats.filter(seat =>
-        selectedSeats.includes(seat.seatId)
-    );
+  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [booking, setBooking] = useState(false);
+  const [error, setError] = useState('');
 
-    const subtotal = selectedSeatDetails.reduce(
-        (total, seat) => total + seat.price,
-        0
-    );
+  const toggleSeat = (seat) => {
+    setError('');
 
-    const gst = subtotal * 0.18;
-    const totalAmount = subtotal + gst;
+    setSelectedSeats((previousSeats) => {
+      const alreadySelected = previousSeats.some(
+        (selectedSeat) => selectedSeat.seatId === seat.seatId
+      );
 
-    useEffect(() => {
+      if (alreadySelected) {
+        return previousSeats.filter(
+          (selectedSeat) => selectedSeat.seatId !== seat.seatId
+        );
+      }
 
-        api.get(`/seat/show/${showId}`)
-            .then(response => {
-                setSeats(response.data);
-            })
-            .catch(error => {
-                console.log(error);
-            });
+      return [...previousSeats, seat];
+    });
+  };
 
-    }, [showId]);
+  async function proceedToBooking() {
+    const token = localStorage.getItem('tickbookToken');
 
-    const selectSeat = (seat) => {
+    if (!token) {
+      navigate('/login', {
+        state: {
+          from: {
+            pathname: `/seats/${showId}`,
+          },
+        },
+      });
+      return;
+    }
 
-        if (seat.status === "BOOKED") {
-            return;
+    if (!selectedSeats.length) {
+      setError('Please select at least one seat.');
+      return;
+    }
+
+    setBooking(true);
+    setError('');
+
+    try {
+      const { data } = await movieApi.post(
+        '/booking',
+        {
+          showId: Number(showId),
+          seatIds: selectedSeats.map((seat) => seat.seatId),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
 
-        if (selectedSeats.includes(seat.seatId)) {
+      navigate('/booking/confirmation', {
+        state: {
+          booking: data,
+          seats: selectedSeats,
+        },
+      });
+    }catch (requestError) {
+  const status = requestError?.response?.status;
 
-            setSelectedSeats(
-                selectedSeats.filter(
-                    id => id !== seat.seatId
-                )
-            );
+  const backendMessage =
+    requestError?.response?.data?.message ||
+    requestError?.response?.data?.error ||
+    '';
 
-        } else {
+  if (status === 401 || status === 403) {
+    setError('Your session may have expired. Please log in again before booking.');
+  } else {
+    const seatConflict =
+      status === 409 || /seat|booked|available/i.test(backendMessage);
 
-            setSelectedSeats([
-                ...selectedSeats,
-                seat.seatId
-            ]);
-
-        }
-    };
-
-    const proceedToBooking = () => {
-
-        const bookingData = {
-            showId: Number(showId),
-            seatIds: selectedSeats
-        };
-
-        api.post("/booking", bookingData)
-            .then(response => {
-
-                console.log(
-                    "Booking successful:",
-                    response.data
-                );
-
-                navigate("/booking-confirmation", {
-                    state: {
-                        booking: response.data,
-                        seats: selectedSeatDetails
-                    }
-                });
-
-            })
-            .catch(error => {
-
-                console.log("Booking failed:", error);
-
-                if (error.response) {
-                    alert(error.response.data);
-                } else {
-                    alert("Something went wrong");
-                }
-
-            });
-    };
-
-    return (
-        <div className="seat-page">
-
-            <h1>Select Your Seats</h1>
-
-            <div className="screen">
-                SCREEN
-            </div>
-
-            <div className="seat-layout">
-
-                {["A", "B", "C", "D", "E", "F", "G", "H"].map(row => (
-
-                    <div className="seat-row" key={row}>
-
-                        <span className="row-label">
-                            {row}
-                        </span>
-
-                        {seats
-                            .filter(seat =>
-                                seat.rowName === row
-                            )
-                            .map(seat => {
-
-                                const isSelected =
-                                    selectedSeats.includes(
-                                        seat.seatId
-                                    );
-
-                                const isBooked =
-                                    seat.status === "BOOKED";
-
-                                const isPremium =
-                                    ["A", "B", "C", "D"]
-                                        .includes(row);
-
-                                return (
-                                    <button
-                                        key={seat.seatId}
-                                        className={`
-                                            seat
-                                            ${isSelected ? "selected" : ""}
-                                            ${isBooked ? "booked" : ""}
-                                            ${isPremium ? "premium" : ""}
-                                        `}
-                                        disabled={isBooked}
-                                        onClick={() =>
-                                            selectSeat(seat)
-                                        }
-                                    >
-                                        {seat.seatNumber}
-                                    </button>
-                                );
-                            })}
-
-                    </div>
-
-                ))}
-
-            </div>
-
-            <div className="legend">
-
-                <span>
-                    <i className="available-box"></i>
-                    Available
-                </span>
-
-                <span>
-                    <i className="selected-box"></i>
-                    Selected
-                </span>
-
-                <span>
-                    <i className="booked-box"></i>
-                    Booked
-                </span>
-
-                <span>
-                    <i className="premium-box"></i>
-                    Premium
-                </span>
-
-            </div>
-
-            <div className="booking-summary">
-
-                <h3>
-                    Selected Seats: {selectedSeats.length}
-                </h3>
-
-                <p>
-                    {selectedSeatDetails.length === 0
-                        ? "No seats selected"
-                        : selectedSeatDetails
-                            .map(seat => seat.seatNumber)
-                            .join(", ")
-                    }
-                </p>
-
-                <p>
-                    Subtotal: ₹{subtotal.toFixed(2)}
-                </p>
-
-                <p>
-                    GST (18%): ₹{gst.toFixed(2)}
-                </p>
-
-                <h2>
-                    Total: ₹{totalAmount.toFixed(2)}
-                </h2>
-
-                <button
-                    className="proceed-button"
-                    disabled={selectedSeats.length === 0}
-                    onClick={proceedToBooking}
-                >
-                    Proceed to Booking
-                </button>
-
-            </div>
-
-        </div>
+    setError(
+      seatConflict
+        ? 'One or more selected seats are no longer available. Please choose different seats.'
+        : backendMessage || 'Your booking could not be completed. Please try again.'
     );
+  }
+} finally {
+  setBooking(false);
+}
+  }
+
+  return (
+    <div className="seat-selection-container">
+      <h2>Select Your Seats</h2>
+
+      <div className="selected-seats">
+        <h3>Selected Seats</h3>
+
+        {selectedSeats.length > 0 ? (
+          <div>
+            {selectedSeats.map((seat) => (
+              <span key={seat.seatId}>
+                {seat.rowName}
+                {seat.seatNumber}{' '}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p>No seats selected.</p>
+        )}
+      </div>
+
+      {error && <p className="error-message">{error}</p>}
+
+      <button
+        type="button"
+        onClick={proceedToBooking}
+        disabled={booking || selectedSeats.length === 0}
+      >
+        {booking ? 'Processing...' : 'Proceed to Booking'}
+      </button>
+    </div>
+  );
 }
 
-export default SeatSelection;

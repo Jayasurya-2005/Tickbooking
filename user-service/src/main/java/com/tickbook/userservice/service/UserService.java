@@ -2,6 +2,8 @@ package com.tickbook.userservice.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.tickbook.userservice.dto.LoginRequest;
 import com.tickbook.userservice.dto.LoginResponse;
@@ -28,7 +30,7 @@ public class UserService {
     public User registerUser(User user) {
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already registered");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
         
         user.setPassword(
@@ -39,17 +41,26 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
     public LoginResponse loginUser(LoginRequest request) {
+
+        if (request.getEmail() == null || request.getPassword() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        }
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
-                    new RuntimeException("Invalid email or password"));
+                    new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
 
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 user.getPassword())) {
 
-            throw new RuntimeException("Invalid email or password");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
         String token = jwtService.generateToken(
